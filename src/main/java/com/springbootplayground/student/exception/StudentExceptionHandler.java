@@ -1,0 +1,13 @@
+package com.springbootplayground.student.exception;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+
+@ControllerAdvice
+public class StudentExceptionHandler {
+    @ExceptionHandler(value = StudentException.class)
+    public ResponseEntity<Object> exception(StudentException exception) {
+        return new ResponseEntity<>(exception.getErrorMessage(), exception.getStatus());
+    }
+}
