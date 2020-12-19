@@ -1,6 +1,7 @@
 package com.springbootplayground.student;
 
 import com.springbootplayground.student.dto.StudentCreateDto;
+import com.springbootplayground.student.dto.StudentUpdateDto;
 import com.springbootplayground.student.exception.StudentException;
 import com.springbootplayground.student.mapper.StudentMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,18 +41,32 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public void updateStudent(Student student) {
-
+    public Student updateStudent(UUID studentId, StudentUpdateDto studentUpdateDto) {
+        checkIfStudentExists(studentId);
+        checkIfExistsByEmail(studentUpdateDto.getEmail());
+        Student student = studentRepository.getOne(studentId);
+        studentMapper.copy(studentUpdateDto, student);
+        studentRepository.saveAndFlush(student);
+        return student;
     }
 
     @Override
     public void deleteStudentById(UUID studentId) {
-
+        checkIfStudentExists(studentId);
+        studentRepository.deleteById(studentId);
     }
 
     private void checkIfStudentExists(UUID studentId) {
         if (!studentRepository.existsByID(studentId)) {
             throw new StudentException("Student with id: " + studentId + " does not exist!", HttpStatus.NOT_FOUND);
+        }
+    }
+
+    private void checkIfExistsByEmail(String email) {
+        if (studentRepository.existsByEmail(email)) {
+            throw new StudentException(
+                    "Student with email: " + email + " already exists."
+                    , HttpStatus.BAD_REQUEST);
         }
     }
 }

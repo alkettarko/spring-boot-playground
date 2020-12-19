@@ -9,18 +9,10 @@ import javax.validation.constraints.NotBlank;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class StudentCreateDto {
-
-    @NotBlank
-    private String firstName;
-
-    @NotBlank
-    private String lastName;
-
+public class StudentUpdateDto {
     @NotBlank
     private String email;
 
     @NotBlank
     private String address;
-
 }

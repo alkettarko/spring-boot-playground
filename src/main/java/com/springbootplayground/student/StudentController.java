@@ -1,11 +1,11 @@
 package com.springbootplayground.student;
 
 import com.springbootplayground.student.dto.StudentCreateDto;
+import com.springbootplayground.student.dto.StudentUpdateDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.websocket.server.PathParam;
 import java.util.List;
 import java.util.UUID;
 
@@ -16,13 +16,8 @@ public class StudentController {
     @Autowired
     private StudentServiceImpl studentService;
 
-//    @GetMapping("/")
-//    public String getGreeting(){
-//        return "helllooooo";
-//    }
-
     @GetMapping(value = "/{studentId}")
-    public ResponseEntity<Student> getStudentById(@PathVariable("studentId")UUID studentId){
+    public ResponseEntity<Student> getStudentById(@PathVariable("studentId") UUID studentId) {
         return ResponseEntity.ok(studentService.getStudentById(studentId));
     }
 
@@ -32,8 +27,21 @@ public class StudentController {
     }
 
     @PostMapping(value = "/create")
-    public ResponseEntity<Student> createStudent(@RequestBody StudentCreateDto studentCreateDto){
+    public ResponseEntity<Student> createStudent(@RequestBody StudentCreateDto studentCreateDto) {
         return ResponseEntity.ok(studentService.createStudent(studentCreateDto));
+    }
+
+    @PutMapping(value = "/{studentId}/update")
+    public ResponseEntity<Student> createStudent(
+            @PathVariable UUID studentId,
+            @RequestBody StudentUpdateDto studentUpdateDto) {
+        return ResponseEntity.ok(studentService.updateStudent(studentId, studentUpdateDto));
+    }
+
+    @DeleteMapping(value = "/{studentId}/delete")
+    public ResponseEntity deleteStudent(@PathVariable UUID studentId) {
+        studentService.deleteStudentById(studentId);
+        return ResponseEntity.ok().build();
     }
 
 }
