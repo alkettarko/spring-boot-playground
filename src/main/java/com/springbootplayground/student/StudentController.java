@@ -17,30 +17,30 @@ public class StudentController {
     private StudentServiceImpl studentService;
 
     @GetMapping(value = "/{studentId}")
-    public ResponseEntity<Student> getStudentById(@PathVariable("studentId") UUID studentId) {
-        return ResponseEntity.ok(studentService.getStudentById(studentId));
+    public ResponseEntity<Student> getById(@PathVariable("studentId") UUID studentId) {
+        return ResponseEntity.ok(studentService.getById(studentId));
     }
 
     @GetMapping()
-    public ResponseEntity<List<Student>> getAllStudents() {
-        return ResponseEntity.ok(studentService.getAllStudents());
+    public ResponseEntity<List<Student>> getAll() {
+        return ResponseEntity.ok(studentService.getAll());
     }
 
     @PostMapping(value = "/create")
-    public ResponseEntity<Student> createStudent(@RequestBody StudentCreateDto studentCreateDto) {
-        return ResponseEntity.ok(studentService.createStudent(studentCreateDto));
+    public ResponseEntity<Student> create(@RequestBody StudentCreateDto studentCreateDto) {
+        return ResponseEntity.ok(studentService.create(studentCreateDto));
     }
 
     @PutMapping(value = "/{studentId}/update")
-    public ResponseEntity<Student> createStudent(
+    public ResponseEntity<Student> update(
             @PathVariable UUID studentId,
             @RequestBody StudentUpdateDto studentUpdateDto) {
-        return ResponseEntity.ok(studentService.updateStudent(studentId, studentUpdateDto));
+        return ResponseEntity.ok(studentService.update(studentId, studentUpdateDto));
     }
 
     @DeleteMapping(value = "/{studentId}/delete")
-    public ResponseEntity deleteStudent(@PathVariable UUID studentId) {
-        studentService.deleteStudentById(studentId);
+    public ResponseEntity delete(@PathVariable UUID studentId) {
+        studentService.deleteById(studentId);
         return ResponseEntity.ok().build();
     }
 

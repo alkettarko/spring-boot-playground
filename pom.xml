@@ -107,40 +107,6 @@
 					</annotationProcessorPaths>
 				</configuration>
 			</plugin>
-<!--			<plugin>-->
-<!--				<groupId>org.springframework.boot</groupId>-->
-<!--				<artifactId>spring-boot-maven-plugin</artifactId>-->
-<!--				<configuration>-->
-<!--					<excludes>-->
-<!--						<exclude>-->
-<!--							<groupId>org.projectlombok</groupId>-->
-<!--							<artifactId>lombok</artifactId>-->
-<!--						</exclude>-->
-<!--					</excludes>-->
-<!--				</configuration>-->
-<!--			</plugin>-->
-<!--			<plugin>-->
-<!--				<groupId>org.bsc.maven</groupId>-->
-<!--				<artifactId>maven-processor-plugin</artifactId>-->
-<!--				<version>3.3.3</version>-->
-<!--				<executions>-->
-<!--					<execution>-->
-<!--						<id>process</id>-->
-<!--						<goals>-->
-<!--							<goal>process</goal>-->
-<!--						</goals>-->
-<!--						<phase>generate-sources</phase>-->
-<!--						<configuration>-->
-<!--							<processors>-->
-<!--								&lt;!&ndash; list of processors to use &ndash;&gt;-->
-<!--								<processor>org.mapstruct.ap.MappingProcessor</processor>-->
-<!--							</processors>-->
-<!--							<outputDirectory>${basedir}/target/generated-sources-mappers</outputDirectory>-->
-<!--							<compilerArguments>-source 11 -target 11</compilerArguments>-->
-<!--						</configuration>-->
-<!--					</execution>-->
-<!--				</executions>-->
-<!--			</plugin>-->
 		</plugins>
 	</build>
 

@@ -7,7 +7,9 @@ import java.util.UUID;
 
 @Repository
 public interface StudentRepository extends JpaRepository<Student, UUID> {
-    Boolean existsByID(UUID id);
+    boolean existsById(UUID id);
 
-    Boolean existsByEmail(String email);
+    boolean existsByEmail(String email);
+
+    Student getByEmail(String email);
 }

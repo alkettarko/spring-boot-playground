@@ -7,13 +7,17 @@ import java.util.List;
 import java.util.UUID;
 
 public interface StudentService {
-    public abstract Student getStudentById(UUID studentId);
+    Student getById(UUID studentId);
 
-    public abstract List<Student> getAllStudents();
+    Student getByEmail(String email);
 
-    public abstract Student createStudent(StudentCreateDto student);
+    List<Student> getAll();
 
-    public abstract Student updateStudent(UUID studentId, StudentUpdateDto studentUpdateDto);
+    Student create(StudentCreateDto student);
 
-    public abstract void deleteStudentById(UUID studentId);
+    Student update(UUID studentId, StudentUpdateDto studentUpdateDto);
+
+    void deleteById(UUID studentId);
+
+    void deleteAll();
 }
