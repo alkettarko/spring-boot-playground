@@ -2,16 +2,24 @@ package com.springbootplayground.student;
 
 import com.springbootplayground.student.dto.StudentCreateDto;
 import com.springbootplayground.student.dto.StudentUpdateDto;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Test;
+import org.aspectj.lang.annotation.Before;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
-import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.BDDAssertions.then;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 class StudentControllerTest {
@@ -20,12 +28,30 @@ class StudentControllerTest {
     private StudentController studentController;
     @Autowired
     private StudentService studentService;
+    @Autowired
+    private WebApplicationContext wac;
 
+    private MockMvc mockMvc;
+
+    @BeforeEach
+    public void setup() {
+        this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
+    }
 
     @AfterEach
     void tearDown() {
         studentService.deleteAll();
     }
+
+//    @Test
+//    public void givenWac_whenServletContext_thenItProvidesGreetController() {
+//        ServletContext servletContext = wac.getServletContext();
+//
+//
+//        Assertions.assertNotNull(servletContext);
+//        Assertions.assertTrue(servletContext instanceof MockServletContext);
+//        Assertions.assertNotNull(wac.getBean("greetController"));
+//    }
 
     @Test
     public void should_create_student() {
@@ -46,24 +72,34 @@ class StudentControllerTest {
     }
 
     @Test
-    public void should_find_all_students() {
-        // GIVEN
-        persistTwoStudents();
+    public void should_find_all_students() throws Exception {
 
-        // WHEN
-        ResponseEntity<List<Student>> students = studentController.getAll();
+        MvcResult mvcResult = this.mockMvc.perform(get("/students"))
+                .andDo(print()).andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Hello World!!!"))
+                .andReturn();
 
-        // THEN
-        then(students.getStatusCode().is2xxSuccessful());
-        then(students.getBody().size() == 2);
+        Assertions.assertEquals("application/json;charset=UTF-8",
+                mvcResult.getResponse().getContentType());
+
+
+//        // GIVEN
+//        persistTwoStudents();
+//
+//        // WHEN
+//        ResponseEntity<List<Student>> students = studentController.getAll();
+//
+//        // THEN
+//        then(students.getStatusCode().is2xxSuccessful());
+//        then(students.getBody().size() == 2);
     }
 
     @Test
     public void should_update_student() {
         // GIVEN
         persistTwoStudents();
-        Student student = studentService.getByEmail("jdoe@gmail.com");
-        UUID studentId = student.getId();
+        Optional<Student> student = studentService.getByEmail("jdoe@gmail.com");
+        UUID studentId = student.get().getId();
         StudentUpdateDto studentUpdateDto = new StudentUpdateDto("someone@outlook.com", "Rome, Italy");
 
         // WHEN
@@ -81,8 +117,8 @@ class StudentControllerTest {
         studentController.create(new StudentCreateDto("Kevin", "Hart", "kevhart@gmail.com", "Tirana, Albania"));
 
         // WHEN
-        Student student = studentService.getByEmail("kevhart@gmail.com");
-        UUID studentId = student.getId();
+        Optional<Student> student = studentService.getByEmail("kevhart@gmail.com");
+        UUID studentId = student.get().getId();
         ResponseEntity responseEntity = studentController.delete(studentId);
 
         // THEN

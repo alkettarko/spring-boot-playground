@@ -8,7 +8,7 @@ import org.springframework.http.HttpStatus;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class StudentException extends RuntimeException {
+public class StudentApplicationException extends RuntimeException {
     private static final long serialVersionUID = 1L;
 
     private String errorMessage;

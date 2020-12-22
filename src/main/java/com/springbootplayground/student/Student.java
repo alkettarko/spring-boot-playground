@@ -1,15 +1,13 @@
 package com.springbootplayground.student;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
-import javax.validation.constraints.NotEmpty;
-import java.time.Instant;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Data
@@ -17,7 +15,6 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "STUDENT")
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Student {
 
     @Id
@@ -25,25 +22,21 @@ public class Student {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    @NotEmpty
     @Column(name = "FIRST_NAME")
     private String firstName;
 
-    @NotEmpty
     @Column(name = "LAST_NAME")
     private String lastName;
 
     @Email
-    @NotEmpty
     @Column(name = "EMAIL")
     private String email;
 
-    @NotEmpty
-    @Column(name = "ADDRESS")
+    @Column(name = "ADDRESS", nullable = false)
     private String address;
 
-    @NotEmpty
+    @CreatedDate
     @Column(name = "CREATED_DATE")
-    private Date createdDate = Date.from(Instant.now());
+    private LocalDateTime createdDate;
 
 }
