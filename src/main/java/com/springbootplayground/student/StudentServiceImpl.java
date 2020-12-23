@@ -35,12 +35,7 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public Optional<Student> getByEmail(@NonNull String email) throws StudentApplicationException{
-//        Student student = studentRepository.getByEmail(email);
-//        if (student == null) {
-//            throw new StudentException("Student with email: " + email + " does not exist."
-//                    , HttpStatus.NOT_FOUND);
-//        }
-//        return student;
+
         return Optional.of(studentRepository.getByEmail(email)
                 .orElseThrow(() -> {
                     throw new StudentApplicationException("Student with email: " + email + " does not exist."
@@ -77,11 +72,6 @@ public class StudentServiceImpl implements StudentService {
     public void deleteById(UUID studentId) {
         checkIfStudentExists(studentId);
         studentRepository.deleteById(studentId);
-    }
-
-    @Override
-    public void deleteAll() {
-        studentRepository.deleteAll();
     }
 
     private void checkIfStudentExists(UUID studentId) {

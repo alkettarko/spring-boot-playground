@@ -20,5 +20,4 @@ public interface StudentService {
 
     void deleteById(UUID studentId);
 
-    void deleteAll();
 }

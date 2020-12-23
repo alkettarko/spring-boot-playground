@@ -11,10 +11,11 @@ import javax.validation.constraints.NotBlank;
 @AllArgsConstructor
 @NoArgsConstructor
 public class StudentUpdateDto {
-    @Email
-    @NotBlank
+
+    @NotBlank(message = "Email must not be empty")
+    @Email(message="Please provide a valid email address")
     private String email;
 
-    @NotBlank
+    @NotBlank(message = "Address must not be empty")
     private String address;
 }

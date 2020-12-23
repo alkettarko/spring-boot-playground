@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 
@@ -27,14 +28,14 @@ public class StudentController {
     }
 
     @PostMapping
-    public ResponseEntity<Student> create(@RequestBody StudentCreateDto studentCreateDto) {
+    public ResponseEntity<Student> create(@RequestBody @Valid StudentCreateDto studentCreateDto) {
         return ResponseEntity.ok(studentService.create(studentCreateDto));
     }
 
     @PutMapping(value = "/{studentId}")
     public ResponseEntity<Student> update(
             @PathVariable UUID studentId,
-            @RequestBody StudentUpdateDto studentUpdateDto) {
+            @RequestBody @Valid StudentUpdateDto studentUpdateDto) {
         return ResponseEntity.ok(studentService.update(studentId, studentUpdateDto));
     }
 
