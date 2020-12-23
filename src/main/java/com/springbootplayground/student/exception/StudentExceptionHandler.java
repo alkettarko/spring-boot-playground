@@ -8,6 +8,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class StudentExceptionHandler {
     @ExceptionHandler(value = StudentApplicationException.class)
     public ResponseEntity<Object> exception(StudentApplicationException exception) {
-        return new ResponseEntity<>(exception.getErrorMessage(), exception.getStatus());
+        return new ResponseEntity<>(exception, exception.getStatus());
     }
 }

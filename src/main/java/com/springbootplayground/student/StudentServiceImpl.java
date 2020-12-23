@@ -84,7 +84,7 @@ public class StudentServiceImpl implements StudentService {
 
     private void checkIfExistsByEmail(String email) {
         if (studentRepository.existsByEmail(email)) {
-            log.debug("Student with email {} does not exist!, email");
+            log.debug("Student with email {} already exists!, email");
             throw new StudentApplicationException(
                     "Student with email: " + email + " already exists."
                     , HttpStatus.BAD_REQUEST);
