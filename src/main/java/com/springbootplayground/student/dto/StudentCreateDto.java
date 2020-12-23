@@ -19,7 +19,7 @@ public class StudentCreateDto {
     private String lastName;
 
     @NotBlank(message = "Email must not be empty")
-    @Email(message="Please provide a valid email address")
+    @Email(message = "Please provide a valid email address")
     private String email;
 
     @NotBlank(message = "Address must not be empty")

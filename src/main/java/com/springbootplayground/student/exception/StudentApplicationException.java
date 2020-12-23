@@ -10,7 +10,7 @@ import org.springframework.http.HttpStatus;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonIgnoreProperties({ "cause", "stackTrace", "message", "suppressed", "localizedMessage" })
+@JsonIgnoreProperties({"cause", "stackTrace", "message", "suppressed", "localizedMessage"})
 public class StudentApplicationException extends RuntimeException {
     private static final long serialVersionUID = 1L;
 

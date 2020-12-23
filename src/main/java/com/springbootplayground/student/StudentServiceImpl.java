@@ -34,7 +34,7 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public Optional<Student> getByEmail(@NonNull String email) throws StudentApplicationException{
+    public Optional<Student> getByEmail(@NonNull String email) throws StudentApplicationException {
 
         return Optional.of(studentRepository.getByEmail(email)
                 .orElseThrow(() -> {
