@@ -1,37 +1,41 @@
 package com.springbootplayground.student;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.springbootplayground.student.dto.StudentCreateDto;
 import com.springbootplayground.student.dto.StudentUpdateDto;
-import org.aspectj.lang.annotation.Before;
-import org.junit.jupiter.api.*;
+import lombok.SneakyThrows;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.util.Optional;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
-import static org.assertj.core.api.BDDAssertions.then;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.hamcrest.Matchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 class StudentControllerTest {
 
     @Autowired
-    private StudentController studentController;
-    @Autowired
-    private StudentService studentService;
+    private StudentRepository studentRepository;
     @Autowired
     private WebApplicationContext wac;
 
+    private ObjectMapper objectMapper = new ObjectMapper();
+
     private MockMvc mockMvc;
+
+    private Student johnDoe;
 
     @BeforeEach
     public void setup() {
@@ -40,94 +44,269 @@ class StudentControllerTest {
 
     @AfterEach
     void tearDown() {
-        studentService.deleteAll();
+        studentRepository.deleteAll();
     }
 
-//    @Test
-//    public void givenWac_whenServletContext_thenItProvidesGreetController() {
-//        ServletContext servletContext = wac.getServletContext();
-//
-//
-//        Assertions.assertNotNull(servletContext);
-//        Assertions.assertTrue(servletContext instanceof MockServletContext);
-//        Assertions.assertNotNull(wac.getBean("greetController"));
-//    }
 
     @Test
+    @SneakyThrows
+    @DisplayName("POST /students - Success")
     public void should_create_student() {
+
         // GIVEN
-        StudentCreateDto studentCreateDto = new StudentCreateDto("Alket", "Tarko", "alket@gmail.com", "Tirana, Albania");
+        var studentCreateDto = new StudentCreateDto(
+                "Alket",
+                "Tarko",
+                "alket@yahoo.com",
+                "Tirana, Albania");
+
+        var jsonRequest = objectMapper.writeValueAsString(studentCreateDto);
 
         // WHEN
-        ResponseEntity<Student> student = studentController.create(studentCreateDto);
+        var mvcResult = mockMvc.perform(
+                post("/students")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(jsonRequest)) // The request object is a string which has a form of json
+                .andDo(print());
 
         // THEN
-        then(student != null);
-        assert student != null;
-        then(student.getStatusCode().is2xxSuccessful());
-        then(student.getBody() != null);
-        then(student.getBody().getFirstName().contentEquals("Alket"));
-        then(student.getBody().getLastName().contentEquals("Tarko"));
-        then(student.getBody().getAddress().contentEquals("Tirana, Albania"));
+        mvcResult.andExpect(status().isOk())
+                .andExpect(jsonPath("$.firstName", is(studentCreateDto.getFirstName())))
+                .andExpect(jsonPath("$.lastName", is(studentCreateDto.getLastName())));
+
     }
 
     @Test
-    public void should_find_all_students() throws Exception {
+    @SneakyThrows
+    @DisplayName("POST /students - Bad Request")
+    public void should_fail_create_if_mandatory_properties_are_not_given_in_the_request() {
+        // GIVEN
+        var studentCreateDto = new StudentCreateDto();
+        var jsonRequest = objectMapper.writeValueAsString(studentCreateDto);
 
-        MvcResult mvcResult = this.mockMvc.perform(get("/students"))
-                .andDo(print()).andExpect(status().isOk())
-//                .andExpect(jsonPath("$.message").value("Hello World!!!"))
-                .andReturn();
+        // WHEN
+        var mvcResult = mockMvc.perform(
+                post("/students")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(jsonRequest)) // The request object is a string which has a form of json
+                .andDo(print());
 
-        Assertions.assertEquals("application/json",
-                mvcResult.getResponse().getContentType());
+        // THEN
+        mvcResult.andExpect(status().isBadRequest());
 
-
-//        // GIVEN
-//        persistTwoStudents();
-//
-//        // WHEN
-//        ResponseEntity<List<Student>> students = studentController.getAll();
-//
-//        // THEN
-//        then(students.getStatusCode().is2xxSuccessful());
-//        then(students.getBody().size() == 2);
     }
 
     @Test
+    @SneakyThrows
+    @DisplayName("POST /students - Bad Request")
+    public void should_fail_create_if_email_is_invalid() {
+        // GIVEN
+        var studentCreateDto = new StudentCreateDto(
+                "Alket",
+                "Tarko",
+                "alket.invalid.email.com",
+                "Tirana, Albania");
+
+        var jsonRequest = objectMapper.writeValueAsString(studentCreateDto);
+
+        // WHEN
+        var mvcResult = mockMvc.perform(
+                post("/students")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(jsonRequest)) // The request object is a string which has a form of json
+                .andDo(print());
+
+        // THEN
+        mvcResult.andExpect(status().isBadRequest());
+
+    }
+
+    @Test
+    @SneakyThrows
+    @DisplayName("POST /students - Bad Request")
+    public void should_fail_create_if_student_with_given_email_already_exists() {
+        // GIVEN
+        persistTwoStudents();
+        var studentCreateDto = new StudentCreateDto(
+                "Jeff",
+                "Doe",
+                "jdoe@gmail.com",
+                "Paris, France");
+
+        var jsonRequest = objectMapper.writeValueAsString(studentCreateDto);
+
+        // WHEN
+        var mvcResult = mockMvc.perform(
+                post("/students")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(jsonRequest)) // The request object is a string which has a form of json
+                .andDo(print());
+
+        // THEN
+        mvcResult.andExpect(status().isBadRequest());
+
+    }
+
+    @Test
+    @SneakyThrows
+    @DisplayName("GET /students/{studentId} - Success")
+    public void should_find_student_by_id() {
+        // GIVEN
+        persistTwoStudents();
+
+        // WHEN
+        var mvcResult = this.mockMvc.perform(get("/students/{studentId}", johnDoe.getId()))
+                .andDo(print());
+
+        // THEN
+        mvcResult
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.firstName", is("John")))
+                .andExpect(jsonPath("$.lastName", is("Doe")))
+                .andExpect(jsonPath("$.email", is("jdoe@gmail.com")))
+                .andExpect(jsonPath("$.address", is("New York, US")));
+
+    }
+
+    @Test
+    @SneakyThrows
+    @DisplayName("GET /students - Success")
+    public void should_find_all_students() {
+        // GIVEN
+        persistTwoStudents();
+
+        // WHEN
+        var mvcResult = this.mockMvc.perform(get("/students"))
+                .andDo(print());
+
+        // THEN
+        mvcResult
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[*].firstName", containsInAnyOrder("John", "Jack")));
+
+    }
+
+    @Test
+    @SneakyThrows
+    @DisplayName("PUT /students/{studentId} - Success")
     public void should_update_student() {
         // GIVEN
         persistTwoStudents();
-        Optional<Student> student = studentService.getByEmail("jdoe@gmail.com");
-        UUID studentId = student.get().getId();
         StudentUpdateDto studentUpdateDto = new StudentUpdateDto("someone@outlook.com", "Rome, Italy");
+        var jsonRequest = objectMapper.writeValueAsString(studentUpdateDto);
 
         // WHEN
-        ResponseEntity<Student> updatedStudent = studentController.update(studentId, studentUpdateDto);
+        var mvcResult = mockMvc.perform(
+                put("/students/{studentId}", johnDoe.getId())
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(jsonRequest)) // The request object is a string which has a form of json
+                .andDo(print());
 
         // THEN
-        then(updatedStudent.getStatusCode().is2xxSuccessful());
-        then(updatedStudent.getBody().getAddress().contentEquals(studentUpdateDto.getAddress()));
-        then(updatedStudent.getBody().getEmail().contentEquals(studentUpdateDto.getEmail()));
+        mvcResult.andExpect(status().isOk())
+                .andExpect(jsonPath("$.email", is(studentUpdateDto.getEmail())))
+                .andExpect(jsonPath("$.address", is(studentUpdateDto.getAddress())));
+
     }
 
     @Test
-    public void should_delete_student() {
+    @SneakyThrows
+    @DisplayName("PUT /students/{studentId} - Bad Request")
+    public void should_fail_update_if_email_is_invalid() {
         // GIVEN
-        studentController.create(new StudentCreateDto("Kevin", "Hart", "kevhart@gmail.com", "Tirana, Albania"));
+        persistTwoStudents();
+        StudentUpdateDto studentUpdateDto = new StudentUpdateDto("johndoe.invalid-email", "Milan, Italy");
+        var jsonRequest = objectMapper.writeValueAsString(studentUpdateDto);
 
         // WHEN
-        Optional<Student> student = studentService.getByEmail("kevhart@gmail.com");
-        UUID studentId = student.get().getId();
-        ResponseEntity responseEntity = studentController.delete(studentId);
+        var mvcResult = mockMvc.perform(
+                put("/students/{studentId}", johnDoe.getId())
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(jsonRequest)) // The request object is a string which has a form of json
+                .andDo(print());
+
 
         // THEN
-        then(responseEntity.getStatusCode().is2xxSuccessful());
+        mvcResult.andExpect(status().isBadRequest());
+
     }
 
+    @Test
+    @SneakyThrows
+    @DisplayName("PUT /students/{studentId} - Bad Request")
+    public void should_fail_update_if_new_email_alredy_exists() {
+        // GIVEN
+        persistTwoStudents();
+        StudentUpdateDto studentUpdateDto = new StudentUpdateDto("sparrow@gmail.com", "Berlin, Germany");
+        var jsonRequest = objectMapper.writeValueAsString(studentUpdateDto);
+
+        // WHEN
+        var mvcResult = mockMvc.perform(
+                put("/students/{studentId}", johnDoe.getId())
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(jsonRequest)) // The request object is a string which has a form of json
+                .andDo(print());
+
+        // THEN
+        mvcResult.andExpect(status().isBadRequest());
+
+    }
+
+    @Test
+    @SneakyThrows
+    @DisplayName("DELETE /students/{studentId} - Success")
+    public void should_delete_student() {
+        // GIVEN
+        persistTwoStudents();
+
+        // WHEN
+        var mvcResult = mockMvc.perform(
+                delete("/students/{studentId}", johnDoe.getId()));
+
+        // THEN
+        mvcResult
+                .andExpect(status().isOk())
+                .andExpect(content().string(""));
+
+    }
+
+    @Test
+    @SneakyThrows
+    @DisplayName("DELETE /students/{studentId} - Not Found")
+    public void should_fail_delete_if_student_not_found() {
+        // GIVEN
+        UUID studentId = UUID.randomUUID(); // The student with this ID does not exist
+
+        // WHEN
+        var mvcResult = mockMvc.perform(
+                delete("/students/{studentId}", studentId));
+
+        // THEN
+        mvcResult.andExpect(status().isNotFound());
+
+    }
+
+
     private void persistTwoStudents() {
-        studentController.create(new StudentCreateDto("John", "Doe", "jdoe@gmail.com", "Tirana, Albania"));
-        studentController.create(new StudentCreateDto("Jack", "Sparrow", "sparrow@gmail.com", "Tirana, Albania"));
+        // Saved this as an instance to use it's ID for tests that require an ID as a path variable
+        this.johnDoe = studentRepository.saveAndFlush(
+                new Student(
+                        UUID.randomUUID(),
+                        "John",
+                        "Doe",
+                        "jdoe@gmail.com",
+                        "New York, US",
+                        LocalDateTime.now()));
+
+        studentRepository.saveAndFlush(
+                new Student(
+                        UUID.randomUUID(),
+                        "Jack",
+                        "Sparrow",
+                        "sparrow@gmail.com",
+                        "Miami, Florida",
+                        LocalDateTime.now()));
     }
 
 }
