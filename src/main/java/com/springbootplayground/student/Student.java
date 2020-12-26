@@ -1,8 +1,6 @@
 package com.springbootplayground.student;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -36,6 +34,7 @@ public class Student {
     private String address;
 
     @CreatedDate
+    @Setter(AccessLevel.NONE)
     @Column(name = "CREATED_DATE")
     private LocalDateTime createdDate;
 

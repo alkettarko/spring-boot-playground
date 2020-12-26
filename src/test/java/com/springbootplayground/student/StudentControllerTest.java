@@ -6,7 +6,6 @@ import com.springbootplayground.student.dto.StudentUpdateDto;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,6 +18,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import static org.hamcrest.Matchers.*;
+import static org.mockito.BDDMockito.then;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -30,8 +30,8 @@ class StudentControllerTest {
     private StudentRepository studentRepository;
     @Autowired
     private WebApplicationContext wac;
-
-    private ObjectMapper objectMapper = new ObjectMapper();
+    @Autowired
+    private ObjectMapper objectMapper;
 
     private MockMvc mockMvc;
 
@@ -50,7 +50,6 @@ class StudentControllerTest {
 
     @Test
     @SneakyThrows
-    @DisplayName("POST /students - Success")
     public void should_create_student() {
 
         // GIVEN
@@ -66,7 +65,7 @@ class StudentControllerTest {
         var mvcResult = mockMvc.perform(
                 post("/students")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .content(jsonRequest)) // The request object is a string which has a form of json
+                        .content(jsonRequest))
                 .andDo(print());
 
         // THEN
@@ -78,7 +77,6 @@ class StudentControllerTest {
 
     @Test
     @SneakyThrows
-    @DisplayName("POST /students - Bad Request")
     public void should_fail_create_if_mandatory_properties_are_not_given_in_the_request() {
         // GIVEN
         var studentCreateDto = new StudentCreateDto();
@@ -88,7 +86,7 @@ class StudentControllerTest {
         var mvcResult = mockMvc.perform(
                 post("/students")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .content(jsonRequest)) // The request object is a string which has a form of json
+                        .content(jsonRequest))
                 .andDo(print());
 
         // THEN
@@ -98,7 +96,6 @@ class StudentControllerTest {
 
     @Test
     @SneakyThrows
-    @DisplayName("POST /students - Bad Request")
     public void should_fail_create_if_email_is_invalid() {
         // GIVEN
         var studentCreateDto = new StudentCreateDto(
@@ -113,7 +110,7 @@ class StudentControllerTest {
         var mvcResult = mockMvc.perform(
                 post("/students")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .content(jsonRequest)) // The request object is a string which has a form of json
+                        .content(jsonRequest))
                 .andDo(print());
 
         // THEN
@@ -123,7 +120,6 @@ class StudentControllerTest {
 
     @Test
     @SneakyThrows
-    @DisplayName("POST /students - Bad Request")
     public void should_fail_create_if_student_with_given_email_already_exists() {
         // GIVEN
         persistTwoStudents();
@@ -139,7 +135,7 @@ class StudentControllerTest {
         var mvcResult = mockMvc.perform(
                 post("/students")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .content(jsonRequest)) // The request object is a string which has a form of json
+                        .content(jsonRequest))
                 .andDo(print());
 
         // THEN
@@ -149,7 +145,6 @@ class StudentControllerTest {
 
     @Test
     @SneakyThrows
-    @DisplayName("GET /students/{studentId} - Success")
     public void should_find_student_by_id() {
         // GIVEN
         persistTwoStudents();
@@ -170,7 +165,6 @@ class StudentControllerTest {
 
     @Test
     @SneakyThrows
-    @DisplayName("GET /students - Success")
     public void should_find_all_students() {
         // GIVEN
         persistTwoStudents();
@@ -189,7 +183,6 @@ class StudentControllerTest {
 
     @Test
     @SneakyThrows
-    @DisplayName("PUT /students/{studentId} - Success")
     public void should_update_student() {
         // GIVEN
         persistTwoStudents();
@@ -200,7 +193,7 @@ class StudentControllerTest {
         var mvcResult = mockMvc.perform(
                 put("/students/{studentId}", johnDoe.getId())
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .content(jsonRequest)) // The request object is a string which has a form of json
+                        .content(jsonRequest))
                 .andDo(print());
 
         // THEN
@@ -212,7 +205,6 @@ class StudentControllerTest {
 
     @Test
     @SneakyThrows
-    @DisplayName("PUT /students/{studentId} - Bad Request")
     public void should_fail_update_if_email_is_invalid() {
         // GIVEN
         persistTwoStudents();
@@ -223,7 +215,7 @@ class StudentControllerTest {
         var mvcResult = mockMvc.perform(
                 put("/students/{studentId}", johnDoe.getId())
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .content(jsonRequest)) // The request object is a string which has a form of json
+                        .content(jsonRequest))
                 .andDo(print());
 
 
@@ -234,7 +226,6 @@ class StudentControllerTest {
 
     @Test
     @SneakyThrows
-    @DisplayName("PUT /students/{studentId} - Bad Request")
     public void should_fail_update_if_new_email_alredy_exists() {
         // GIVEN
         persistTwoStudents();
@@ -245,7 +236,7 @@ class StudentControllerTest {
         var mvcResult = mockMvc.perform(
                 put("/students/{studentId}", johnDoe.getId())
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .content(jsonRequest)) // The request object is a string which has a form of json
+                        .content(jsonRequest))
                 .andDo(print());
 
         // THEN
@@ -255,7 +246,6 @@ class StudentControllerTest {
 
     @Test
     @SneakyThrows
-    @DisplayName("DELETE /students/{studentId} - Success")
     public void should_delete_student() {
         // GIVEN
         persistTwoStudents();
@@ -268,12 +258,12 @@ class StudentControllerTest {
         mvcResult
                 .andExpect(status().isOk())
                 .andExpect(content().string(""));
+        then(studentRepository.getByEmail(johnDoe.getEmail()).isEmpty());
 
     }
 
     @Test
     @SneakyThrows
-    @DisplayName("DELETE /students/{studentId} - Not Found")
     public void should_fail_delete_if_student_not_found() {
         // GIVEN
         UUID studentId = UUID.randomUUID(); // The student with this ID does not exist
