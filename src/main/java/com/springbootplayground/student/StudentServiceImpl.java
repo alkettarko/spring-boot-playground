@@ -61,7 +61,7 @@ public class StudentServiceImpl implements StudentService {
     @Transactional
     public Student update(@NonNull UUID studentId, @NonNull StudentUpdateDto studentUpdateDto) {
         checkIfStudentExists(studentId);
-        checkIfExistsByEmail(studentUpdateDto.getEmail());
+        checkIfExistsByEmailAndNotId(studentUpdateDto.getEmail(), studentId);
         Student student = studentRepository.getOne(studentId);
         studentMapper.copy(studentUpdateDto, student);
         studentRepository.saveAndFlush(student);
@@ -84,6 +84,15 @@ public class StudentServiceImpl implements StudentService {
 
     private void checkIfExistsByEmail(String email) {
         if (studentRepository.existsByEmail(email)) {
+            log.debug("Student with email {} already exists!, email");
+            throw new StudentApplicationException(
+                    "Student with email: " + email + " already exists."
+                    , HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    private void checkIfExistsByEmailAndNotId(String email, UUID studentId) {
+        if (studentRepository.existsByEmailAndIdNot(email, studentId)) {
             log.debug("Student with email {} already exists!, email");
             throw new StudentApplicationException(
                     "Student with email: " + email + " already exists."
