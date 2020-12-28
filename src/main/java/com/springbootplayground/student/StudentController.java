@@ -6,11 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/students")
+@RequestMapping("/students")
 public class StudentController {
 
     @Autowired
@@ -21,24 +22,24 @@ public class StudentController {
         return ResponseEntity.ok(studentService.getById(studentId));
     }
 
-    @GetMapping()
+    @GetMapping
     public ResponseEntity<List<Student>> getAll() {
         return ResponseEntity.ok(studentService.getAll());
     }
 
-    @PostMapping(value = "/create")
-    public ResponseEntity<Student> create(@RequestBody StudentCreateDto studentCreateDto) {
+    @PostMapping
+    public ResponseEntity<Student> create(@RequestBody @Valid StudentCreateDto studentCreateDto) {
         return ResponseEntity.ok(studentService.create(studentCreateDto));
     }
 
-    @PutMapping(value = "/{studentId}/update")
+    @PutMapping(value = "/{studentId}")
     public ResponseEntity<Student> update(
             @PathVariable UUID studentId,
-            @RequestBody StudentUpdateDto studentUpdateDto) {
+            @RequestBody @Valid StudentUpdateDto studentUpdateDto) {
         return ResponseEntity.ok(studentService.update(studentId, studentUpdateDto));
     }
 
-    @DeleteMapping(value = "/{studentId}/delete")
+    @DeleteMapping(value = "/{studentId}")
     public ResponseEntity delete(@PathVariable UUID studentId) {
         studentService.deleteById(studentId);
         return ResponseEntity.ok().build();
