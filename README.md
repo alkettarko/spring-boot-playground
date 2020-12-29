@@ -26,5 +26,5 @@ A playground for a java spring boot crud
  mvn test
 ```
 
- Feel free to check out API-s swagger documentation:
+ Check out API-s documentation:
  http://localhost:8084/swagger-ui.html
