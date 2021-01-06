@@ -6,5 +6,5 @@ orbs:
 workflows:
   maven_test:
     jobs:
-      - maven/clean:
-          command: "clean"
+      - maven/test:
+          command: "clean test install"
