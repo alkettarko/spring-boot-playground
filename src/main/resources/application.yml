@@ -1,2 +1,8 @@
 server:
   port: 8084
+  contextPath: /api/*
+
+spring:
+  jackson:
+    serialization:
+      FAIL_ON_EMPTY_BEANS: false

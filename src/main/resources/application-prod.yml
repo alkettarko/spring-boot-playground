@@ -1,9 +1,9 @@
 spring:
   datasource:
     driver-class-name: com.mysql.jdbc.Driver
-    password: ''
-    url: jdbc:mysql://localhost:3306/playground
-    username: root
+    password: ${DATABASE_PASSWORD}
+    url: ${DATABASE_URI}
+    username: ${DATABASE_USERNAME}
   jpa:
     hibernate:
       ddl-auto: create-drop
