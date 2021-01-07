@@ -1,6 +1,7 @@
 # Spring boot playground
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![CircleCI](https://circleci.com/gh/alkettarko/spring-boot-playground.svg?style=shield&circle-token=8747c78c9c097141f1c52a2efcd91d7aa3cc6f5e)](https://github.com/alkettarko/spring-boot-playground)
 
 A playground project for spring boot world
 
