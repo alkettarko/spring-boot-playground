@@ -1,2 +1,19 @@
 server:
   port: 8084
+  contextPath: /api/*
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    password: ${DATABASE_PASSWORD}
+    url: ${DATABASE_URI}
+    username: ${DATABASE_USERNAME}
+  jackson:
+    serialization:
+      FAIL_ON_EMPTY_BEANS: false
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL5Dialect
