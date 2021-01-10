@@ -16,3 +16,6 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+java:
+  runtime:
+    version: 11
